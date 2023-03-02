@@ -1,25 +1,69 @@
 
+/// Processor Status Bit: Carry Flag
 pub const C: u8 = 0b0000_0001;
+/// Processor Status Bit: Zero Flag
 pub const Z: u8 = 0b0000_0010;
+/// Processor Status Bit: Interrupt Disable
 pub const I: u8 = 0b0000_0100;
+/// Processor Status Bit: Decimal Mode Flag
 pub const D: u8 = 0b0000_1000;
+/// Processor Status Bit: Break Command
 pub const B: u8 = 0b0001_0000;
+/// Processor Status Bit: Overflow Flag
 pub const V: u8 = 0b0100_0000;
+/// Processor Status Bit: Negative Flag
 pub const N: u8 = 0b1000_0000;
 
+/// Addressing Modes
+///
+/// Indicates how memory locations are addressed.
 pub enum AddressingMode {
+    /// The instruction implicity indicates source/destination and no arguments
+    /// are specified for the instruction.
     Implicit,
+    /// The instruction acts on the accumulator register.
     Accumulator,
+    /// The instruction has arguments which are directly specified constants.
     Immediate,
+    /// Takes an 8bit address operand. This limits the instruction to addressing
+    /// only the first 256 bytes of memory where the most significant byte of
+    /// the address is always zero. In this mode only the least significant
+    /// byte of the address is held in the instruction making it shorter by one
+    /// byte.
     ZeroPage,
+    /// The address to be accessed by an instruction is calculated by taking
+    /// the 8bit address from the operand and adding the current value of the
+    /// X register to it. Addition wraps if the value exceeds 0xFF.
     ZeroPageX,
+    /// The address to be accessed by an instruction is calculated by taking
+    /// the 8bit address from the operand and adding the current value of the
+    /// Y register to it. Addition wraps it the value exceeds 0xFF.
     ZeroPageY,
+    /// Used by branch instructions which contain an 8bit operand that is added
+    /// to the program counter AFTER the program counter has been incremented
+    /// for the branch instruction (and operands). Due to this the taret
+    /// instruction location must be within -126 to +129 bytes of the branch.
     Relative,
+    /// Instructions contain one 16bit operand to identify the target location.
     Absolute,
+    /// Instructions contain one 16bit opernd which is added with the X register
+    /// to calculate the absolute address to be used.
     AbsoluteX,
+    /// Instructions contain one 16bit opernd which is added with the Y register
+    /// to calculate the absolute address to be used.
     AbsoluteY,
+    /// Only used by the JMP instruction. The instruction has one 16bit operand
+    /// which identifies the location of the least significant byte of another
+    /// 16bit memory address which is the real target of the instruction.
     Indirect,
+    /// Usually used in conjunction with a table of address held on zero page.
+    /// The address of the table is taken from the instruction 16bit operand
+    /// and the X register added to it (with zero page wrap around) to give
+    /// the location of the least signficant byte of the target address.
     IndirectX,
+    /// The operand contains the zero page location of the least significant
+    /// byte of the 16bit address. The Y register is added to this value
+    /// to generate the actual target address for operation.
     IndirectY,
 }
 
