@@ -80,7 +80,7 @@ pub struct Op {
 
     /// The number of arguments for this instruction. Each entry corresponds
     /// to an opcode for a different addressing mode. See `addrmodes`.
-    pub args:     &'static [u8],
+    pub opbytes:  &'static [u8],
 
     /// The base number of cycles this instruction takes to execute. Each entry
     /// corresponds to an opcode for a different addressing mode. See
@@ -125,7 +125,7 @@ pub static ADC: Op = Op {
     ],
             // Immd,  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
     opcodes: &[0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71],
-    args:    &[   1,    1,    1,    2,    2,    2,    1,    1],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
     cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
     pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
     br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
@@ -153,7 +153,7 @@ pub static AND: Op = Op {
     ],
             // Immd,  ZPg, ZpgX,  Abs, AbsX, AbsY, IndX, IndY
     opcodes: &[0x29, 0x25, 0x35, 0x2D, 0x3D, 0x39, 0x21, 0x31],
-    args:    &[    1,   1,    1,    2,    2,    2,    1,    1],
+    opbytes: &[    2,   2,    2,    3,    3,    3,    2,    2],
     cycles:  &[    2,   3,    4,    4,    4,    4,    6,    5],
     pg_cyc:  &[    0,   0,    0,    0,    1,    1,    0,    1],
     br_cyc:  &[    0,   0,    0,    0,    0,    0,    0,    0],
@@ -182,7 +182,7 @@ pub static ASL: Op = Op {
     ],
             // Accm,  ZPg, ZPgX,  Abs, AbsX
     opcodes: &[0x0A, 0x06, 0x16, 0x0E, 0x1E],
-    args:    &[   0,    1,    1,    2,    2],
+    opbytes: &[   1,    2,    2,    3,    3],
     cycles:  &[   2,    5,    6,    6,    7],
     pg_cyc:  &[   0,    0,    0,    0,    0],
     br_cyc:  &[   0,    0,    0,    0,    0],
@@ -202,7 +202,7 @@ pub static BCC: Op = Op {
     ],
             //  Rel
     opcodes: &[0x90],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -222,7 +222,7 @@ pub static BCS: Op = Op {
     ],
             //  Rel
     opcodes: &[0xB0],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -242,7 +242,7 @@ pub static BEQ: Op = Op {
     ],
             //  Rel
     opcodes: &[0xF0],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -267,7 +267,7 @@ pub static BIT: Op = Op {
     ],
             //  ZPg,  Abs
     opcodes: &[0x24, 0x2C],
-    args:    &[   1,    2],
+    opbytes: &[   2,    3],
     cycles:  &[   3,    4],
     pg_cyc:  &[   0,    0],
     br_cyc:  &[   0,    0],
@@ -287,7 +287,7 @@ pub static BMI: Op = Op {
     ],
             //  Rel
     opcodes: &[0x30],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -307,7 +307,7 @@ pub static BNE: Op = Op {
     ],
             //  Rel
     opcodes: &[0xD0],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -327,7 +327,7 @@ pub static BPL: Op = Op {
     ],
             //  Rel
     opcodes: &[0x10],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -349,7 +349,7 @@ pub static BRK: Op = Op {
     ],
             // Impl
     opcodes: &[0x00],
-    args:    &[   0],
+    opbytes: &[   1],
     cycles:  &[   7],
     pg_cyc:  &[   0],
     br_cyc:  &[   0],
@@ -369,7 +369,7 @@ pub static BVC: Op = Op {
     ],
             //  Rel
     opcodes: &[0x50],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -389,7 +389,7 @@ pub static BVS: Op = Op {
     ],
             //  Rel
     opcodes: &[0x70],
-    args:    &[   1],
+    opbytes: &[   2],
     cycles:  &[   2],
     pg_cyc:  &[   2],
     br_cyc:  &[   1],
@@ -409,7 +409,7 @@ pub static CLC: Op = Op {
     ],
             // Impl
     opcodes: &[0x18],
-    args:    &[   0],
+    opbytes: &[   1],
     cycles:  &[   2],
     pg_cyc:  &[   0],
     br_cyc:  &[   0],
@@ -428,7 +428,7 @@ pub static CLD: Op = Op {
     ],
             // Impl
     opcodes: &[0xD8],
-    args:    &[   0],
+    opbytes: &[   1],
     cycles:  &[   2],
     pg_cyc:  &[   0],
     br_cyc:  &[   0],
@@ -448,7 +448,7 @@ pub static CLI: Op = Op {
     ],
             // Impl
     opcodes: &[0x58],
-    args:    &[   0],
+    opbytes: &[   1],
     cycles:  &[   2],
     pg_cyc:  &[   0],
     br_cyc:  &[   0],
@@ -465,9 +465,9 @@ pub static CLV: Op = Op {
     addrmodes: &[
         AddressingMode::Implicit,
     ],
-
+            // Impl
     opcodes: &[0xB8],
-    args:    &[   0],
+    opbytes: &[   1],
     cycles:  &[   2],
     pg_cyc:  &[   0],
     br_cyc:  &[   0],
@@ -496,7 +496,7 @@ pub static CMP: Op = Op {
     ],
             // Immd,  ZPg, ZpgX,  Abs, AbsX, AbsY, IndX, IndY
     opcodes: &[0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1],
-    args:    &[   1,    1,    1,    2,    2,    2,    1,    1],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
     cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
     pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
     br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
@@ -520,7 +520,7 @@ pub static CPX: Op = Op {
     ],
             // Immd,  ZPg,  Abs
     opcodes: &[0xE0, 0xE4, 0xEC],
-    args:    &[   1,    1,    2],
+    opbytes: &[   2,    2,    3],
     cycles:  &[   2,    3,    4],
     pg_cyc:  &[   0,    0,    0],
     br_cyc:  &[   0,    0,    0],
@@ -544,10 +544,76 @@ pub static CPY: Op = Op {
     ],
             // Immd,  ZPg,  Abs
     opcodes: &[0xC0, 0xC4, 0xCC],
-    args:    &[   1,    1,    2],
+    opbytes: &[   2,    2,    3],
     cycles:  &[   2,    3,    4],
     pg_cyc:  &[   0,    0,    0],
     br_cyc:  &[   0,    0,    0],
     status: C | Z | N,
+};
+
+/// Decrement Memory
+///
+/// Subtracts one from the value held at a specified memory location setting
+/// the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if result is zero
+/// Negative Flag: Set if bit 7 of the result is set
+pub static DEC: Op = Op {
+    addrmodes: &[
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            //  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0xC6, 0xD6, 0xCE, 0xDE],
+    opbytes: &[   2,    2,    3,    3],
+    cycles:  &[   5,    6,    6,    7],
+    pg_cyc:  &[   0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0],
+    status: Z | N,
+};
+
+/// Decrement X Register
+///
+/// Subtracts one from the X register setting the zero and negative flags as
+/// appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X is zero
+/// Negative Flag: Set if bit 7 of X is set
+pub static DEX: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xCA],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Decrement Y Register
+///
+/// Subtracts one from the Y register setting the zero and negative flags as
+/// appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X is zero
+/// Negative Flag: Set if bit 7 of X is set
+pub static DEY: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x88],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
 };
 
