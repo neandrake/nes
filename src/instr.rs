@@ -602,8 +602,8 @@ pub static DEX: Op = Op {
 /// appropriate.
 ///
 /// Processor Status after use:
-/// Zero Flag: Set if X is zero
-/// Negative Flag: Set if bit 7 of X is set
+/// Zero Flag: Set if Y is zero
+/// Negative Flag: Set if bit 7 of Y is set
 pub static DEY: Op = Op {
     addrmodes: &[
         AddressingMode::Implicit,
@@ -617,3 +617,30 @@ pub static DEY: Op = Op {
     status: Z | N,
 };
 
+/// Exclusive OR
+///
+/// An exclusive OR is performed, bit by bit, on the accumulator contents using
+/// the contents of a byte of memory.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A is zero
+/// Negative Flag: Set if bit 7 is set
+pub static EOR: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+        AddressingMode::AbsoluteY,
+        AddressingMode::IndirectX,
+        AddressingMode::IndirectY,
+    ],
+            // Immd,  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
+    opcodes: &[0x40, 0x45, 0x55, 0x4D, 0x5D, 0x59, 0x41, 0x51],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
+    cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    status: Z | N,
+};
