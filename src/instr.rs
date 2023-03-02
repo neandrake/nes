@@ -25,12 +25,35 @@ pub enum AddressingMode {
 
 /// Instruction Opcode
 pub struct Op {
+    /// Array of the different addressing modes this instruction operates in.
+    /// This array length and order of items matches that of `opcodes`,
+    /// `args`, `cycles`, `pg_pen`, and `br_pen`.
     pub addrmodes: &'static [AddressingMode],
+
+    /// The opcodes for this instruction. Each entry corresponds to an opcode
+    /// for a different addressing mode. See `addrmodes`.
     pub opcodes:  &'static [u8],
+
+    /// The number of arguments for this instruction. Each entry corresponds
+    /// to an opcode for a different addressing mode. See `addrmodes`.
     pub args:     &'static [u8],
+
+    /// The base number of cycles this instruction takes to execute. Each entry
+    /// corresponds to an opcode for a different addressing mode. See
+    /// `addrmodes`.
     pub cycles:   &'static [u8],
-    pub pg_pen:   &'static [u8],
-    pub br_pen:   &'static [u8],
+
+    /// The number of cycles added to the base if a page boundary is crossed.
+    /// Each entry corresponds to an opcode for a different addressing mode.
+    /// See `addrmodes`.
+    pub pg_cyc:   &'static [u8],
+
+    /// The number of cycles added to the base if a branch is executed.
+    /// Each entry corresponds to an opcode for a different addressing mode.
+    /// See `addrmodes`.
+    pub br_cyc:   &'static [u8],
+
+    /// The Processor Status bits that are affected by this instruction.
     pub status: u8,
 }
 
@@ -60,8 +83,8 @@ pub static ADC: Op = Op {
     opcodes: &[0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71],
     args:    &[   1,    1,    1,    2,    2,    2,    1,    1],
     cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
-    pg_pen:  &[   0,    0,    0,    0,    1,    1,    0,    1],
-    br_pen:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
     status: C | Z | V | N,
 };
 
@@ -88,8 +111,8 @@ pub static AND: Op = Op {
     opcodes: &[0x29, 0x25, 0x35, 0x2D, 0x3D, 0x39, 0x21, 0x31],
     args:    &[    1,   1,    1,    2,    2,    2,    1,    1],
     cycles:  &[    2,   3,    4,    4,    4,    4,    6,    5],
-    pg_pen:  &[    0,   0,    0,    0,    1,    1,    0,    1],
-    br_pen:  &[    0,   0,    0,    0,    0,    0,    0,    0],
+    pg_cyc:  &[    0,   0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[    0,   0,    0,    0,    0,    0,    0,    0],
     status: Z | N,
 };
 
@@ -117,8 +140,8 @@ pub static ASL: Op = Op {
     opcodes: &[0x0A, 0x06, 0x16, 0x0E, 0x1E],
     args:    &[   0,    1,    1,    2,    2],
     cycles:  &[   2,    5,    6,    6,    7],
-    pg_pen:  &[   0,    0,    0,    0,    0],
-    br_pen:  &[   0,    0,    0,    0,    0],
+    pg_cyc:  &[   0,    0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0,    0],
     status: C | Z | N,
 };
 
@@ -137,8 +160,8 @@ pub static BCC: Op = Op {
     opcodes: &[0x90],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -157,8 +180,8 @@ pub static BCS: Op = Op {
     opcodes: &[0xB0],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -177,8 +200,8 @@ pub static BEQ: Op = Op {
     opcodes: &[0xF0],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -202,8 +225,8 @@ pub static BIT: Op = Op {
     opcodes: &[0x24, 0x2C],
     args:    &[   1,    2],
     cycles:  &[   3,    4],
-    pg_pen:  &[   0,    0],
-    br_pen:  &[   0,    0],
+    pg_cyc:  &[   0,    0],
+    br_cyc:  &[   0,    0],
     status: Z | V | N,
 };
 
@@ -222,8 +245,8 @@ pub static BMI: Op = Op {
     opcodes: &[0x30],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -242,8 +265,8 @@ pub static BNE: Op = Op {
     opcodes: &[0xD0],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -262,8 +285,8 @@ pub static BPL: Op = Op {
     opcodes: &[0x10],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -284,8 +307,8 @@ pub static BRK: Op = Op {
     opcodes: &[0x00],
     args:    &[   0],
     cycles:  &[   7],
-    pg_pen:  &[   0],
-    br_pen:  &[   0],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
     status: B,
 };
 
@@ -304,8 +327,8 @@ pub static BVC: Op = Op {
     opcodes: &[0x50],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -324,8 +347,8 @@ pub static BVS: Op = Op {
     opcodes: &[0x70],
     args:    &[   1],
     cycles:  &[   2],
-    pg_pen:  &[   2],
-    br_pen:  &[   1],
+    pg_cyc:  &[   2],
+    br_cyc:  &[   1],
     status: 0,
 };
 
@@ -344,8 +367,8 @@ pub static CLC: Op = Op {
     opcodes: &[0x18],
     args:    &[   0],
     cycles:  &[   2],
-    pg_pen:  &[   0],
-    br_pen:  &[   0],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
     status: C,
 };
 
@@ -363,8 +386,8 @@ pub static CLD: Op = Op {
     opcodes: &[0xD8],
     args:    &[   0],
     cycles:  &[   2],
-    pg_pen:  &[   0],
-    br_pen:  &[   0],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
     status: D,
 };
 
@@ -383,8 +406,8 @@ pub static CLI: Op = Op {
     opcodes: &[0x58],
     args:    &[   0],
     cycles:  &[   2],
-    pg_pen:  &[   0],
-    br_pen:  &[   0],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
     status: I,
 };
 
@@ -402,8 +425,8 @@ pub static CLV: Op = Op {
     opcodes: &[0xB8],
     args:    &[   0],
     cycles:  &[   2],
-    pg_pen:  &[   0],
-    br_pen:  &[   0],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
     status: V,
 };
 
@@ -431,8 +454,8 @@ pub static CMP: Op = Op {
     opcodes: &[0xC9, 0xC5, 0xD5, 0xCD, 0xDD, 0xD9, 0xC1, 0xD1],
     args:    &[   1,    1,    1,    2,    2,    2,    1,    1],
     cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
-    pg_pen:  &[   0,    0,    0,    0,    1,    1,    0,    1],
-    br_pen:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
     status: C | Z | N,
 };
 
@@ -455,8 +478,8 @@ pub static CPX: Op = Op {
     opcodes: &[0xE0, 0xE4, 0xEC],
     args:    &[   1,    1,    2],
     cycles:  &[   2,    3,    4],
-    pg_pen:  &[   0,    0,    0],
-    br_pen:  &[   0,    0,    0],
+    pg_cyc:  &[   0,    0,    0],
+    br_cyc:  &[   0,    0,    0],
     status: C | Z | N,
 };
 
@@ -479,8 +502,8 @@ pub static CPY: Op = Op {
     opcodes: &[0xC0, 0xC4, 0xCC],
     args:    &[   1,    1,    2],
     cycles:  &[   2,    3,    4],
-    pg_pen:  &[   0,    0,    0],
-    br_pen:  &[   0,    0,    0],
+    pg_cyc:  &[   0,    0,    0],
+    br_cyc:  &[   0,    0,    0],
     status: C | Z | N,
 };
 
