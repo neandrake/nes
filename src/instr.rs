@@ -711,3 +711,121 @@ pub static INY: Op = Op {
     status: Z | N,
 };
 
+/// Jump
+///
+/// Sets the program counter to the address specified by the operand.
+///
+/// Processor Status after use:
+/// [processor status is unaffected]
+pub static JMP: Op = Op {
+    addrmodes: &[
+        AddressingMode::Absolute,
+        AddressingMode::Indirect,
+    ],
+            //  Abs,  Ind
+    opcodes: &[0x4C, 0x6C],
+    opbytes: &[   3,    3],
+    cycles:  &[   3,    5],
+    pg_cyc:  &[   0,    0],
+    br_cyc:  &[   0,    0],
+    status: 0,
+};
+
+/// Jump to Subroutine
+///
+/// The JSR instruction pushes the address (minus one) of the return point on
+/// to the stack and then sets the program counter to the target memory address.
+///
+/// Processor Status after use:
+/// [processor status is unaffected]
+pub static JSR: Op = Op {
+    addrmodes: &[
+        AddressingMode::Absolute,
+    ],
+            //  Abs
+    opcodes: &[0x20],
+    opbytes: &[   3],
+    cycles:  &[   6],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+/// Load Accumulator
+///
+/// Loads a byte of memory into the accumulator setting the zero and negative
+/// flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A = 0
+/// Negative Flag: Set if bit 7 of A is set
+pub static LDA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+        AddressingMode::AbsoluteY,
+        AddressingMode::IndirectX,
+        AddressingMode::IndirectY,
+    ],
+            // Immd,  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
+    opcodes: &[0xA9, 0xA5, 0xB5, 0xAD, 0xBD, 0xB9, 0xA1, 0xB1],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
+    cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    status: Z | N,
+};
+
+/// Load X Register
+///
+/// Loads a byte of memory into the X register setting the zero and negative
+/// flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X = 0
+/// Negative Flag: Set if bit 7 of X is set
+pub static LDX: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageY,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteY,
+    ],
+            // Immd,  ZPg, ZPgY,  Abs, AbsY
+    opcodes: &[0xA2, 0xA6, 0xB6, 0xAE, 0xBE],
+    opbytes: &[   2,    2,    2,    3,    3],
+    cycles:  &[   2,    3,    4,    4,    4],
+    pg_cyc:  &[   0,    0,    0,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0],
+    status: Z | N,
+};
+
+/// Load Y Register
+///
+/// Loads a byte of memory into the Y register setting the zero and negative
+/// flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if Y = 0
+/// Negative Flag: Set if bit 7 of Y is set
+pub static LDY: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            // Immd,  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0xA0, 0xA4, 0xB4, 0xAC, 0xBC],
+    opbytes: &[   2,    2,    2,    3,    3],
+    cycles:  &[   2,    3,    4,    4,    4],
+    pg_cyc:  &[   0,    0,    0,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0],
+    status: Z | N,
+};
+
