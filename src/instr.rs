@@ -644,3 +644,70 @@ pub static EOR: Op = Op {
     br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
     status: Z | N,
 };
+
+/// Increment Memory
+///
+/// Adds one to the value held at a specified memory location setting the zero
+/// and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if result is zero
+/// Negative Flag: Set if bit 7 of the result is set
+pub static INC: Op = Op {
+    addrmodes: &[
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            //  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0xE6, 0xF6, 0xEE, 0xFE],
+    opbytes: &[   2,    2,    3,    3],
+    cycles:  &[   5,    6,    6,    7],
+    pg_cyc:  &[   0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0],
+    status: Z | N,
+};
+
+/// Increment X Register
+///
+/// Adds one to the X register setting the zero and negative flags as
+/// appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X is zero
+/// Negative Flag: Set if bit 7 of X is set
+pub static INX: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xE8],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Increment Y Register
+///
+/// Adds one to the Y register setting the zero and negative flags as
+/// appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if Y is zero
+/// Negative Flag: Set if bit 7 of Y is set
+pub static INY: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xC8],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
