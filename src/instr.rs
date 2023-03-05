@@ -829,3 +829,163 @@ pub static LDY: Op = Op {
     status: Z | N,
 };
 
+/// Logical Shift Right
+///
+/// Each of the bits in A or M is shift one place to the right. The bit that
+/// was in bit 0 is shifted into the carry flag. Bit 7 is set to zero.
+///
+/// Processor Status after use:
+/// Carry Flag: Set to contents of old bit 0
+/// Zero Flag: Set if result = 0
+/// Negative Flag: Set if bit 7 of the result is set
+pub static LSR: Op = Op {
+    addrmodes: &[
+        AddressingMode::Accumulator,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            //  Acc,  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0x4A, 0x46, 0x56, 0x4E, 0x5E],
+    opbytes: &[   1,    2,    2,    3,    3],
+    cycles:  &[   2,    5,    6,    6,    7],
+    pg_cyc:  &[   0,    0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0,    0],
+    status: C | Z | N,
+};
+
+/// No Operation
+///
+/// The NOP instruction causes no changes to the processor other than the
+/// normal incrementing of the program counter to the next instruction.
+///
+/// Processor Status after use:
+/// [processer status unaffected]
+pub static NOP: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xEA],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+/// Logical Inclusive OR
+///
+/// An inclusive OR is performed, bit by bit, on the accumulator contents using
+/// the contents of a byte of memory.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A = 0,
+/// Negative Flag: Set if bit 7 set
+pub static ORA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+        AddressingMode::AbsoluteY,
+        AddressingMode::IndirectX,
+        AddressingMode::IndirectY,
+    ],
+            // Immd,  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
+    opcodes: &[0x09, 0x05, 0x15, 0x0D, 0x1D, 0x19, 0x01, 0x11],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
+    cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    status: Z | N,
+};
+
+/// Push Accumulator
+///
+/// Pushes a copy of the accumulator on to the stack.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static PHA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x48],
+    opbytes: &[   1],
+    cycles:  &[   3],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+/// Push Processor Status
+///
+/// Pushes a copy of the status flags on to the stack.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static PHP: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x08],
+    opbytes: &[   1],
+    cycles:  &[   3],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+/// Pull Accumulator
+///
+/// Pulls an 8 bit value from the stack and into the accumulator. The zero and
+/// negative flags are set as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A = 0,
+/// Negative Flag: Set if bit 7 of A is set
+pub static PLA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x68],
+    opbytes: &[   1],
+    cycles:  &[   4],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Pull Processor Status
+///
+/// Pulls an 8 bit value from the stack and into the processor flags. The flags
+/// will take on new states as determined by the value pulled.
+///
+/// Processor Status after use:
+/// Carry Flag: Set from stack
+/// Zero Flag: Set from stack
+/// Interrupt Disable: Set from stack
+/// Decimal Mode Flag: Set from stack
+/// Break Command: Set from stack
+/// Overflow Flag: Set from stack
+/// Negative Flag: Set from stack
+pub static PLP: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x28],
+    opbytes: &[   1],
+    cycles:  &[   4],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: C | Z | I | D | B | V | N,
+};
+
+
