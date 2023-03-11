@@ -1,3 +1,4 @@
+//! Definitions for Processor Status Flags, Addressing Modes, and Instructions.
 
 /// Processor Status Bit: Carry Flag
 pub const C: u8 = 0b0000_0001;
@@ -100,6 +101,15 @@ pub struct Op {
     /// The Processor Status bits that are affected by this instruction.
     pub status: u8,
 }
+
+/// All instructions
+pub static INSTRUCTIONS: &'static [&'static Op] = &[
+    &ADC, &AND, &ASL, &BCC, &BCS, &BEQ, &BIT, &BMI, &BNE, &BPL, &BRK, &BVC, &BVS, &CLC,
+    &CLD, &CLI, &CLV, &CMP, &CPX, &CPY, &DEC, &DEX, &DEY, &EOR, &INC, &INX, &INY, &JMP,
+    &JSR, &LDA, &LDX, &LDY, &LSR, &NOP, &ORA, &PHA, &PHP, &PLA, &PLP, &ROL, &ROR, &RTI,
+    &RTS, &SBC, &SEC, &SED, &SEI, &STA, &STX, &STY, &TAX, &TAY, &TSX, &TXA, &TXS, &TYA,
+];
+
 
 /// Add with Carry
 ///
@@ -988,4 +998,383 @@ pub static PLP: Op = Op {
     status: C | Z | I | D | B | V | N,
 };
 
+/// Rotate Left
+///
+/// Move each of the bits in either A or M one place to the left. Bit 0 is
+/// filled with the current value of the carry flag whilst the old bit 7
+/// becomes the new carry flag value.
+///
+/// Processor Status after use:
+/// Carry Flag: Set to contents of old bit 7
+/// Zero Flag: Set if A = 0
+/// Negative Flag: Set if bit 7 of the result is set
+pub static ROL: Op = Op {
+    addrmodes: &[
+        AddressingMode::Accumulator,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            // Accm,  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0x2A, 0x26, 0x36, 0x2E, 0x3E],
+    opbytes: &[   1,    2,    2,    3,    3],
+    cycles:  &[   2,    5,    6,    6,    7],
+    pg_cyc:  &[   0,    0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0,    0],
+    status: C | Z | N,
+};
+
+/// Rotate Right
+///
+/// Move each of the bits in either A or M one place to the right. Bit 7 is
+/// filled with the current value of the carry flag whilst the old bit 0
+/// becomes the new carry flag value.
+///
+/// Processor Status after use:
+/// Carry Flag: Set to contents of old bit 0
+/// Zero Flag: Set if A = 0
+/// Negative Flag: Set if bit 7 of the result is set
+pub static ROR: Op = Op {
+    addrmodes: &[
+        AddressingMode::Accumulator,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+    ],
+            // Accm,  ZPg, ZPgX,  Abs, AbsX
+    opcodes: &[0x6A, 0x66, 0x76, 0x6E, 0x7E],
+    opbytes: &[   1,    2,    2,    3,    3],
+    cycles:  &[   2,    5,    6,    6,    7],
+    pg_cyc:  &[   0,    0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0,    0],
+    status: C | Z | N,
+};
+
+/// Return from Interrupt
+///
+/// The RTI instruction is used at the end of an interrupt processing routine.
+/// It pulls the processor flags from the stack followed by the program counter.
+///
+/// Processor Status after use:
+/// Carry Flag: Set from stack
+/// Zero Flag: Set from stack
+/// Interrupt Disable: Set from stack
+/// Decimal Mode Flag: Set from stack
+/// Break Comand: Set from stack
+/// Overflow Flag: Set from stack
+/// Negative Flag: Set from stack
+pub static RTI: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x40],
+    opbytes: &[   1],
+    cycles:  &[   6],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: C | Z | I | D | B | V | N,
+};
+
+/// Return from Subroutine
+///
+/// The RTS instruction is used at the end of a subroutine to return to the
+/// calling routine. It pulls the program counter (minus one) from the stack.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static RTS: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x60],
+    opbytes: &[   1],
+    cycles:  &[   6],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+/// Subtract with Carry
+///
+/// This instruction subtracts the contents of a memory location to the
+/// accumulator together with the not of the carry bit. If overflow occurs the
+/// carry bit is clear, this enables multiple byte subtraction to be performed.
+///
+/// Processor Status after use:
+/// Carry Flag: Claer if overflow in bit 7
+/// Zero Flag: Set if A = 0
+/// Overflow Flag: Set if sign bit is incorrect
+/// Negative Flag: Set if bit 7 set
+pub static SBC: Op = Op {
+    addrmodes: &[
+        AddressingMode::Immediate,
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+        AddressingMode::AbsoluteY,
+        AddressingMode::IndirectX,
+        AddressingMode::IndirectY,
+    ],
+            // Immd,  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
+    opcodes: &[0xE9, 0xE5, 0xF5, 0xED, 0xFD, 0xF9, 0xE1, 0xF1],
+    opbytes: &[   2,    2,    2,    3,    3,    3,    2,    2],
+    cycles:  &[   2,    3,    4,    4,    4,    4,    6,    5],
+    pg_cyc:  &[   0,    0,    0,    0,    1,    1,    0,    1],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0,    0],
+    status: C | Z | V | N,
+};
+
+/// Set Carry Flag
+///
+/// Set the carry flag to one.
+///
+/// Processor Status after use:
+/// Carry Flag: Set to 1
+pub static SEC: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x3B],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: C,
+};
+
+/// Set Decimal Flag
+///
+/// Set the decimal mode flag to one.
+///
+/// Processor Status after use:
+/// Decimal Mode Flag: Set to 1
+pub static SED: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xF8],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: D,
+};
+
+/// Set Interrupt Disable
+///
+/// Set the interrupt disable flag to one.
+///
+/// Processor Status after use:
+/// Interrupt Disable: Set to 1
+pub static SEI: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x78],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: D,
+};
+
+/// Store Accumulator
+///
+/// Stores the contents of the accumulator into memory.
+///
+/// Processor Status after use:
+/// [processor status unaffecte]
+pub static STA: Op = Op {
+    addrmodes: &[
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+        AddressingMode::AbsoluteX,
+        AddressingMode::AbsoluteY,
+        AddressingMode::IndirectX,
+        AddressingMode::IndirectY,
+    ],
+            //  ZPg, ZPgX,  Abs, AbsX, AbsY, IndX, IndY
+    opcodes: &[0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91],
+    opbytes: &[   2,    2,    3,    3,    3,    2,    2],
+    cycles:  &[   3,    4,    4,    5,    5,    6,    6],
+    pg_cyc:  &[   0,    0,    0,    0,    0,    0,    0],
+    br_cyc:  &[   0,    0,    0,    0,    0,    0,    0],
+    status: 0,
+};
+
+/// Store X Register
+///
+/// Stores the contents of the X register into memory.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static STX: Op = Op {
+    addrmodes: &[
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageY,
+        AddressingMode::Absolute,
+    ],
+            //  ZPg, ZPgY,  Abs
+    opcodes: &[0x86, 0x96, 0x8E],
+    opbytes: &[   2,    2,    3],
+    cycles:  &[   3,    4,    4],
+    pg_cyc:  &[   0,    0,    0],
+    br_cyc:  &[   0,    0,    0],
+    status: 0,
+};
+
+/// Store Y Register
+///
+/// Stores the contents of the Y register into memory.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static STY: Op = Op {
+    addrmodes: &[
+        AddressingMode::ZeroPage,
+        AddressingMode::ZeroPageX,
+        AddressingMode::Absolute,
+    ],
+            //  ZPg, ZPgX,  Abs
+    opcodes: &[0x84, 0x94, 0x8C],
+    opbytes: &[   2,    2,    3],
+    cycles:  &[   3,    4,    4],
+    pg_cyc:  &[   0,    0,    0],
+    br_cyc:  &[   0,    0,    0],
+    status: 0,
+};
+
+/// Transfer Accumulator to X
+///
+/// Copies the current contents of the accumulator into the X register and set
+/// the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X = 0
+/// Negative Flag: Set if bit 7 of X is set
+pub static TAX: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xAA],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Transfer Accumulator to Y
+///
+/// Copies the current contents of the accumulator into the Y register and set
+/// the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if Y = 0
+/// Negative Flag: Set if bit 7 of Y is set
+pub static TAY: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xA8],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Transfer Stack Pointer to X
+///
+/// Copies the current contents of the stack register into the X register and
+/// sets the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if X = 0
+/// Negative Flag: Set if bit 7 of X is set
+pub static TSX: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0xBA],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Transfer X to Accumulator
+///
+/// Copies the current contents of the X register into the accumulator and sets
+/// the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A = 0
+/// Negative Flag: Set if bit 7 of A is set
+pub static TXA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x8A],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
+
+/// Transfer X to Stack Pointer
+///
+/// Copies the current contents of the X register into the stack register.
+///
+/// Processor Status after use:
+/// [processor status unaffected]
+pub static TXS: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x9A],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: 0,
+};
+
+
+/// Transfer Y to Accumulator
+///
+/// Copies the current contents of the Y register into the accumulator and sets
+/// the zero and negative flags as appropriate.
+///
+/// Processor Status after use:
+/// Zero Flag: Set if A = 0
+/// Negative Flag: Set if bit 7 of A is set
+pub static TYA: Op = Op {
+    addrmodes: &[
+        AddressingMode::Implicit,
+    ],
+            // Impl
+    opcodes: &[0x98],
+    opbytes: &[   1],
+    cycles:  &[   2],
+    pg_cyc:  &[   0],
+    br_cyc:  &[   0],
+    status: Z | N,
+};
 
