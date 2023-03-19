@@ -1,4 +1,3 @@
-
 pub trait Mem {
     fn write_u8(&mut self, addr: u16, value: u8);
 
@@ -23,12 +22,11 @@ pub struct CPU {
 impl CPU {
     pub fn execute(&mut self, op: u16) -> bool {
         match op {
-            0xA9 => {
-            },
+            0xA9 => {}
             0x00 => {
                 return false;
-            },
-            _ => todo!()
+            }
+            _ => todo!(),
         }
         true
     }
@@ -49,12 +47,12 @@ impl Mem for CPU {
         let addr: usize = addr.into();
         let bytes: [u8; 2] = value.to_le_bytes();
         self.ram[addr] = bytes[0];
-        self.ram[addr+1] = bytes[1];
+        self.ram[addr + 1] = bytes[1];
     }
 
     fn read_u16(&self, addr: u16) -> u16 {
         let addr: usize = addr.into();
-        let bytes: [u8; 2] = [self.ram[addr], self.ram[addr+1]];
+        let bytes: [u8; 2] = [self.ram[addr], self.ram[addr + 1]];
         u16::from_le_bytes(bytes)
     }
 }
